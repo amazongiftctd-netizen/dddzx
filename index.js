@@ -20,6 +20,7 @@ const CONFIG = {
   DOORDASH_CATEGORY_ID: "1519604859551219742",
   UBEREATS_CATEGORY_ID: "1519604859551219742",
   REVIEW_CHANNEL_ID: "1519589104474652772",
+  COMPLETED_CHANNEL_ID: "1519606120925233293",
 };
 
 const COLORS = {
@@ -197,7 +198,8 @@ client.on("interactionCreate", async (interaction) => {
           .setDescription(`Your **${service}** order has been received!\n\n📍 **Address:** ${address}\n\n👉 Track your order: ${ticketChannel}`)
           .setColor(COLORS.gold)
           .setFooter({ text: "Deluxe Bites • Thank you for ordering!" })
-      ]
+      ],
+      ephemeral: true
     });
     return;
   }
@@ -224,6 +226,7 @@ client.on("interactionCreate", async (interaction) => {
 
       await interaction.update({ components: [disabledRow] });
 
+      // Notify in ticket
       await interaction.channel.send({
         embeds: [
           new EmbedBuilder()
@@ -238,6 +241,25 @@ client.on("interactionCreate", async (interaction) => {
             .setTimestamp()
         ]
       });
+
+      // Log to completed channel
+      const completedChannel = client.channels.cache.get(CONFIG.COMPLETED_CHANNEL_ID);
+      if (completedChannel) {
+        await completedChannel.send({
+          embeds: [
+            new EmbedBuilder()
+              .setTitle("✅  Order Completed — Deluxe Bites")
+              .setColor(COLORS.green)
+              .addFields(
+                { name: "👤  Customer", value: `<@${ticket.userId}>`, inline: true },
+                { name: "🚗  Service", value: ticket.service, inline: true },
+                { name: "📍  Address", value: `\`\`\`${ticket.address}\`\`\``, inline: false },
+              )
+              .setFooter({ text: "Deluxe Bites • Completed Orders" })
+              .setTimestamp()
+          ]
+        });
+      }
 
       await interaction.channel.permissionOverwrites.edit(ticket.userId, {
         SendMessages: true,
