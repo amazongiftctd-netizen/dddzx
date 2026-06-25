@@ -17,8 +17,8 @@ const CONFIG = {
   TOKEN: process.env.TOKEN,
   CHEF_ROLE_ID: "1519592994389495929",
   ADMIN_ROLE_ID: "1519593159967903854",
-  DOORDASH_CATEGORY_ID: "1519589134153547918",
-  UBEREATS_CATEGORY_ID: "1519589134153547918",
+  DOORDASH_CATEGORY_ID: "1519604859551219742",
+  UBEREATS_CATEGORY_ID: "1519604859551219742",
   REVIEW_CHANNEL_ID: "1519589104474652772",
 };
 
@@ -177,7 +177,7 @@ client.on("interactionCreate", async (interaction) => {
     );
 
     await ticketChannel.send({
-      content: `<@&${CONFIG.CHEF_ROLE_ID}>`,
+      content: `<@&${CONFIG.CHEF_ROLE_ID}> — A new order just came in! 👨‍🍳`,
       embeds: [ticketEmbed],
       components: [chefRow],
     });
@@ -185,7 +185,7 @@ client.on("interactionCreate", async (interaction) => {
     await ticketChannel.send({
       embeds: [
         new EmbedBuilder()
-          .setDescription("👨‍🍳  **A chef will be with you shortly!** Sit tight, your order is being prepared.")
+          .setDescription(`👨‍🍳 **A chef will be with you shortly** <@${user.id}>! Sit tight, your order is being prepared.`)
           .setColor(COLORS.gold)
       ]
     });
