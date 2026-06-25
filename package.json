@@ -1,0 +1,17 @@
+{
+  "name": "deluxe-bites",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@discordjs/rest": "^2.6.1",
+    "discord-api-types": "^0.38.49",
+    "discord.js": "^14.26.4"
+  }
+}
