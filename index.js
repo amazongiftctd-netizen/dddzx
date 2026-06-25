@@ -57,6 +57,7 @@ client.on("messageCreate", async (message) => {
         "### Welcome to **Deluxe Bites** — premium delivery at your fingertips.\n\n" +
         "Choose your delivery platform below to place your order.\n" +
         "A chef will be assigned to you shortly after you submit your address.\n\n" +
+        "🔥 **LIMITED TIME — 55% OFF ALL ORDERS!** 🔥\n\n" +
         "─────────────────────────────"
       )
       .setColor(COLORS.gold)
