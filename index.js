@@ -114,7 +114,15 @@ client.on("interactionCreate", async (interaction) => {
     const guild = interaction.guild;
     const user = interaction.user;
 
-    await interaction.deferReply({ ephemeral: true });
+    // Reply immediately so Discord does not time out
+    await interaction.reply({
+      embeds: [
+        new EmbedBuilder()
+          .setDescription("⏳ Creating your order ticket, one second...")
+          .setColor(COLORS.gold)
+      ],
+      ephemeral: true
+    });
 
     const safeUsername = user.username.replace(/[^a-z0-9]/gi, "-").toLowerCase();
     const categoryId = service === "DoorDash" ? CONFIG.DOORDASH_CATEGORY_ID : CONFIG.UBEREATS_CATEGORY_ID;
@@ -182,7 +190,7 @@ client.on("interactionCreate", async (interaction) => {
       ]
     });
 
-    await interaction.editReply({
+    await interaction.followUp({
       embeds: [
         new EmbedBuilder()
           .setTitle("✅ Order Placed!")
