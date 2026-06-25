@@ -22,6 +22,7 @@ const CONFIG = {
   REVIEW_CHANNEL_ID: "1519589104474652772",
   COMPLETED_CHANNEL_ID: "1519606120925233293",
   COMPLETED_ROLE_ID: "1519608257017151518",
+  CLOSED_CATEGORY_ID: "1519609133295210538",
 };
 
 const COLORS = {
@@ -277,6 +278,37 @@ client.on("interactionCreate", async (interaction) => {
       } catch (e) {
         console.error("Could not assign completed role:", e);
       }
+
+      // Countdown and auto-close after 1 minute
+      await interaction.channel.send({
+        embeds: [
+          new EmbedBuilder()
+            .setDescription("🔒 This ticket will automatically close in **1 minute**.")
+            .setColor(COLORS.gold)
+        ]
+      });
+
+      setTimeout(async () => {
+        try {
+          await interaction.channel.send({
+            embeds: [
+              new EmbedBuilder()
+                .setDescription("🔒 **Ticket closed.** Thank you for choosing Deluxe Bites!")
+                .setColor(COLORS.red)
+            ]
+          });
+          // Move to closed category and lock everyone out
+          await interaction.channel.setParent(CONFIG.CLOSED_CATEGORY_ID, { lockPermissions: false });
+          await interaction.channel.permissionOverwrites.set([
+            { id: interaction.guild.roles.everyone, deny: [PermissionFlagsBits.ViewChannel] },
+            { id: CONFIG.CHEF_ROLE_ID, allow: [PermissionFlagsBits.ViewChannel], deny: [PermissionFlagsBits.SendMessages] },
+            { id: CONFIG.ADMIN_ROLE_ID, allow: [PermissionFlagsBits.ViewChannel], deny: [PermissionFlagsBits.SendMessages] },
+            { id: client.user.id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ManageChannels] },
+          ]);
+        } catch (e) {
+          console.error("Error closing ticket:", e);
+        }
+      }, 60000);
 
     } else {
       ticket.stage = "issue";
