@@ -21,6 +21,7 @@ const CONFIG = {
   UBEREATS_CATEGORY_ID: "1519604859551219742",
   REVIEW_CHANNEL_ID: "1519589104474652772",
   COMPLETED_CHANNEL_ID: "1519606120925233293",
+  COMPLETED_ROLE_ID: "1519608257017151518",
 };
 
 const COLORS = {
@@ -134,10 +135,11 @@ client.on("interactionCreate", async (interaction) => {
       type: ChannelType.GuildText,
       parent: categoryId || null,
       permissionOverwrites: [
-        { id: guild.roles.everyone, deny: [PermissionFlagsBits.ViewChannel] },
-        { id: user.id, allow: [PermissionFlagsBits.ViewChannel], deny: [PermissionFlagsBits.SendMessages] },
-        { id: CONFIG.CHEF_ROLE_ID, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] },
-        { id: CONFIG.ADMIN_ROLE_ID, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] },
+        { id: guild.roles.everyone, deny: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory] },
+        { id: user.id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.ReadMessageHistory], deny: [PermissionFlagsBits.SendMessages] },
+        { id: CONFIG.CHEF_ROLE_ID, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory] },
+        { id: CONFIG.ADMIN_ROLE_ID, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory] },
+        { id: client.user.id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ManageChannels, PermissionFlagsBits.ReadMessageHistory] },
       ],
     });
 
@@ -253,7 +255,6 @@ client.on("interactionCreate", async (interaction) => {
               .addFields(
                 { name: "👤  Customer", value: `<@${ticket.userId}>`, inline: true },
                 { name: "🚗  Service", value: ticket.service, inline: true },
-                { name: "📍  Address", value: `\`\`\`${ticket.address}\`\`\``, inline: false },
               )
               .setFooter({ text: "Deluxe Bites • Completed Orders" })
               .setTimestamp()
@@ -261,10 +262,21 @@ client.on("interactionCreate", async (interaction) => {
         });
       }
 
+      // Give customer back send + attach perms
       await interaction.channel.permissionOverwrites.edit(ticket.userId, {
         SendMessages: true,
         AttachFiles: true,
+        ViewChannel: true,
+        ReadMessageHistory: true,
       });
+
+      // Give customer the completed role
+      try {
+        const member = await interaction.guild.members.fetch(ticket.userId);
+        await member.roles.add(CONFIG.COMPLETED_ROLE_ID);
+      } catch (e) {
+        console.error("Could not assign completed role:", e);
+      }
 
     } else {
       ticket.stage = "issue";
